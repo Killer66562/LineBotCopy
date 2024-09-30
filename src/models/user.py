@@ -70,7 +70,11 @@ class User(object):
             else:
                 self._is_end = True
         elif self._question_set.key == QuestionSet.KEY_DIABETES:
-            request_data = {(question.key, question.ans) for question in self._question_set.questions}
+            request_data = {}
+
+            for question in self._question_set.questions:
+                request_data[question.key] = question.ans
+
             api_url = f"{base_api_url}/predict/diabetes"
             try:
                 response = requests.post(api_url, json=request_data, headers={'Content-type': 'application/json'})
