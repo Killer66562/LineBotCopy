@@ -18,7 +18,7 @@ class QuestionSet(object):
 
     @property
     def questions(self) -> list[Question]:
-        return self.questions
+        return self._questions
 
 
 class QuestionSetFactory(ABC):

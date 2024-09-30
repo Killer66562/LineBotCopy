@@ -58,13 +58,13 @@ class User(object):
 
     def finalize(self, line_bot_api: LineBotApi, reply_token: str) -> None:
         if self._question_set.key == QuestionSet.KEY_TEST:
-            if self._current_question.ans == "0":
+            if self.current_question.ans == "0":
                 self._is_end = True
-            elif self._current_question.ans == "1":
+            elif self.current_question.ans == "1":
                 self._question_set = choose_question_set_factory.generate()
                 self._index = 0
         elif self._question_set.key == QuestionSet.KET_CHOOSE:
-            if self._current_question.ans == "1":
+            if self.current_question.ans == "1":
                 self._question_set = diabetes_question_set_factory.generate()
                 self._index = 0
             else:
