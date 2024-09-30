@@ -42,44 +42,59 @@ class Question(ABC):
         '''
         if self._check_float:
             if not is_float(ans):
-                line_bot_api.reply_message(
-                    reply_token=reply_token, 
-                    messages=[TextSendMessage(text="請輸入一個數字")]
-                )
-                return False
+                try:
+                    line_bot_api.reply_message(
+                        reply_token=reply_token, 
+                        messages=[TextSendMessage(text="請輸入一個數字")]
+                    )
+                    return False
+                except:
+                    return False
             
             ans = float(ans)
 
             if self._check_positive and not ans > 0:
-                line_bot_api.reply_message(
-                    reply_token=reply_token, 
-                    messages=[TextSendMessage(text="請輸入一個正數")]
-                )
-                return False
+                try:
+                    line_bot_api.reply_message(
+                        reply_token=reply_token, 
+                        messages=[TextSendMessage(text="請輸入一個正數")]
+                    )
+                    return False
+                except:
+                    return False
 
         elif self._check_int:
             if not is_int(ans):
-                line_bot_api.reply_message(
-                    reply_token=reply_token, 
-                    messages=[TextSendMessage(text="請輸入一個整數")]
-                )
-                return False
+                try:
+                    line_bot_api.reply_message(
+                        reply_token=reply_token, 
+                        messages=[TextSendMessage(text="請輸入一個整數")]
+                    )
+                    return False
+                except:
+                    return False
             
             ans = int(ans)
 
             if self._check_positive and not ans > 0:
+                try:
+                    line_bot_api.reply_message(
+                        reply_token=reply_token, 
+                        messages=[TextSendMessage(text="請輸入一個正整數")]
+                    )
+                    return False
+                except:
+                    return False
+
+        if self._allowed_ans_list and ans not in self._allowed_ans_list:
+            try:
                 line_bot_api.reply_message(
                     reply_token=reply_token, 
                     messages=[TextSendMessage(text="請輸入一個正整數")]
                 )
                 return False
-
-        if self._allowed_ans_list and ans not in self._allowed_ans_list:
-            line_bot_api.reply_message(
-                reply_token=reply_token, 
-                messages=[TextSendMessage(text="請輸入一個正整數")]
-            )
-            return False
+            except Exception:
+                return False
         
         self._ans = ans
         return True
