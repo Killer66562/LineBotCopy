@@ -1,153 +1,124 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Any, Self
+from typing import Any
 
 from linebot import LineBotApi
-from linebot.models import MessageEvent, TextMessage, TextSendMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, PostbackEvent
+from linebot.models import TextSendMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction
 
-from models.listener import Listener
 from utils import is_int, is_float
 
 
-class QuestionMetadata(object):
-    def __init__(self, title: str, key: str, next_metadata: Self | None = None, ans_metadata_map: dict[Any, Self] = dict()) -> None:
+class Question(ABC):
+    def __init__(self, title: str, key: str, allowed_ans_list: list[Any] = [], check_float: bool = False, check_int: bool = False, check_positive: bool = False) -> None:
         self._title = title
         self._key = key
-        self._next_metadata = next_metadata
-        self._ans_metadata_map = ans_metadata_map
+        self._ans = None
+        self._allowed_ans_list = allowed_ans_list
+        self._check_float = check_float
+        self._check_int = check_int
+        self._check_positive = check_positive
 
-    @property
-    def title(self) -> str:
-        return self._title
-    
     @property
     def key(self) -> str:
         return self._key
 
+    @property
+    def ans(self) -> Any:
+        return self._ans
 
-class TextQuestionMetadata(QuestionMetadata):
-    def __init__(self, title: str, key: str) -> None:
-        super().__init__(title, key)
+    @abstractmethod
+    def ask(self, line_bot_api: LineBotApi, reply_token: str):
+        pass
+
+    def answer(self, line_bot_api: LineBotApi, reply_token: str, ans: str) -> bool:
+        '''
+        Return True if the answer if valid else False
+        '''
+        if self._check_float:
+            if not is_float(ans):
+                line_bot_api.reply_message(
+                    reply_token=reply_token, 
+                    messages=[TextSendMessage(text="請輸入一個數字")]
+                )
+                return False
+            
+            ans = float(ans)
+
+            if self._check_positive and not ans > 0:
+                line_bot_api.reply_message(
+                    reply_token=reply_token, 
+                    messages=[TextSendMessage(text="請輸入一個正數")]
+                )
+                return False
+
+        elif self._check_int:
+            if not is_int(ans):
+                line_bot_api.reply_message(
+                    reply_token=reply_token, 
+                    messages=[TextSendMessage(text="請輸入一個整數")]
+                )
+                return False
+            
+            ans = int(ans)
+
+            if self._check_positive and not ans > 0:
+                line_bot_api.reply_message(
+                    reply_token=reply_token, 
+                    messages=[TextSendMessage(text="請輸入一個正整數")]
+                )
+                return False
+
+        if self._allowed_ans_list and ans not in self._allowed_ans_list:
+            line_bot_api.reply_message(
+                reply_token=reply_token, 
+                messages=[TextSendMessage(text="請輸入一個正整數")]
+            )
+            return False
+        
+        self._ans = ans
+        return True
+
+
+class TextQuestion(Question):
+    def __init__(self, title: str, key: str, allowed_ans_list: list[Any] = [], check_float: bool = False, check_int: bool = False, check_positive: bool = False) -> None:
+        super().__init__(title, key, allowed_ans_list, check_float, check_int, check_positive)
+
+    def ask(self, line_bot_api: LineBotApi, reply_token: str):
+        line_bot_api.reply_message(
+            reply_token=reply_token, 
+            messages=[TextSendMessage(text=self._title)]
+        )
 
 
 class ButtonQuestionOption(object):
-    def __init__(self, label: str, value: str) -> None:
+    def __init__(self, label: str, data: str) -> None:
         self._label = label
-        self._value = value
+        self._data = data
 
     @property
     def label(self) -> str:
         return self._label
     
     @property
-    def value(self) -> str:
-        return self._value
+    def data(self) -> str:
+        return self._data
+    
 
-
-class ButtonQuestionMetadata(QuestionMetadata):
-    def __init__(self, title: str, introduction: str, key: str, options: list[ButtonQuestionOption]) -> None:
-        super().__init__(title, key)
+class ButtonQuestion(Question):
+    def __init__(self, title: str, key: str, introduction: str = "", options: list[ButtonQuestionOption] = list(), allowed_ans_list: list[Any] = [], check_float: bool = False, check_int: bool = False, check_positive: bool = False) -> None:
+        super().__init__(title, key, allowed_ans_list, check_float, check_int, check_positive)
         self._introduction = introduction
         self._options = options
 
-    @property
-    def introduction(self) -> str:
-        return self._introduction
-    
-    @property
-    def options(self) -> list[ButtonQuestionOption]:
-        return self._options
-    
-
-class Question(ABC):
-    def __init__(self, metadata: QuestionMetadata) -> None:
-        super().__init__()
-        self._metadata = metadata
-        self._value: Any = None
-        self._listeners: list[Listener] = []
-        self._ans_metadata_map = {}
-
-    @property
-    def title(self) -> str:
-        return self._metadata.title
-
-    @property
-    def key(self) -> str:
-        return self._metadata._key
-    
-    @property
-    def value(self) -> Any:
-        return self._value
-
-    @abstractmethod
-    def ask(self, reply_token: str, line_bot_api: LineBotApi) -> None:
-        pass
-
-    @abstractmethod
-    def answer(self, value: str, reply_token: str, line_bot_api: LineBotApi) -> None:
-        pass
-
-    @abstractmethod
-    def next_question(self, metadata: QuestionMetadata) -> QuestionMetadata:
-        pass
-
-    def add_listener(self, listener: Listener):
-        if listener not in self._listeners:
-            self._listeners.append(listener)
-
-
-class TextQuestion(Question):
-    def __init__(self, metadata: TextQuestionMetadata) -> None:
-        super().__init__(metadata)
-        self._metadata = metadata
-
-
-class ButtonQuestion(Question):
-    def __init__(self, metadata: ButtonQuestionMetadata) -> None:
-        super().__init__(metadata)
-        self._metadata = metadata
-
-    @property
-    def introduction(self) -> str:
-        return self._metadata.introduction
-    
-    @property
-    def options(self) -> list[ButtonQuestionOption]:
-        return self._metadata.options
-
-    def ask(self, reply_token: str) -> None:
-        actions = [PostbackAction(label=option.label, data=option.value) for option in self.options]
+    def ask(self, line_bot_api: LineBotApi, reply_token: str):
+        actions = [PostbackAction(label=option.label, data=option.data) for option in self._options]
         template_message = TemplateSendMessage(
-            alt_text=f"請選擇{self.title}",
+            alt_text= "請輸入" + self._title,
             template=ButtonsTemplate(
-                title=self.title,
-                text=self.introduction,
+                title=self._title,
+                text=self._introduction,
                 actions=actions
             )
         )
-        self._line_bot_api.reply_message(reply_token, template_message)
-
-    def answer(self, value: str, reply_token: str, check_int: bool = False, check_float: bool = False) -> None:
-        if check_float is True:
-            if is_float(value) is False:
-                pass
-        
-        if check_int is True:
-            if is_int(value) is False:
-                pass
-
-        for listener in self._listeners:
-            listener.on_called(reply_token)
-
-   
-class PredictOrNotQuestion(ButtonQuestion):
-    def __init__(self, line_bot_api: LineBotApi, title: str, introduction: str, key: str, options: list[ButtonQuestionOption]) -> None:
-        super().__init__(line_bot_api, title, introduction, key, options)
-        self._introduction = "您好，我是健康智能管家。\n您可以叫我阿瑄=U=\n請問是否進行疾病預測呢?"
-        self._options = [
-            ButtonQuestionOption(label="是", value="0"), 
-            ButtonQuestionOption(label="是", value="1"), 
-        ]
-
-    
-
-        
+        line_bot_api.reply_message(reply_token=reply_token, messages=[template_message])
