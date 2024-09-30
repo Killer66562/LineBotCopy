@@ -76,6 +76,11 @@ class User(object):
             for question in self._question_set.questions:
                 request_data[question.key] = question.ans
 
+            answers = [question.ans for question in self._question_set.questions]
+            err_msg = ", ".join(answers)
+
+            raise ValueError(err_msg)
+
             logging.info(request_data)
 
             api_url = f"{base_api_url}/predict/diabetes"
