@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Self
 
 from linebot import LineBotApi
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, PostbackEvent
@@ -9,9 +9,11 @@ from utils import is_int, is_float
 
 
 class QuestionMetadata(object):
-    def __init__(self, title: str, key: str) -> None:
+    def __init__(self, title: str, key: str, next_metadata: Self | None = None, ans_metadata_map: dict[Any, Self] = dict()) -> None:
         self._title = title
         self._key = key
+        self._next_metadata = next_metadata
+        self._ans_metadata_map = ans_metadata_map
 
     @property
     def title(self) -> str:
@@ -57,12 +59,12 @@ class ButtonQuestionMetadata(QuestionMetadata):
     
 
 class Question(ABC):
-    def __init__(self, metadata: QuestionMetadata, line_bot_api: LineBotApi) -> None:
+    def __init__(self, metadata: QuestionMetadata) -> None:
         super().__init__()
         self._metadata = metadata
-        self._line_bot_api = line_bot_api
         self._value: Any = None
         self._listeners: list[Listener] = []
+        self._ans_metadata_map = {}
 
     @property
     def title(self) -> str:
@@ -77,11 +79,15 @@ class Question(ABC):
         return self._value
 
     @abstractmethod
-    def ask(self, reply_token: str) -> None:
+    def ask(self, reply_token: str, line_bot_api: LineBotApi) -> None:
         pass
 
     @abstractmethod
-    def answer(self, value: str, reply_token: str) -> None:
+    def answer(self, value: str, reply_token: str, line_bot_api: LineBotApi) -> None:
+        pass
+
+    @abstractmethod
+    def next_question(self, metadata: QuestionMetadata) -> QuestionMetadata:
         pass
 
     def add_listener(self, listener: Listener):
@@ -90,14 +96,14 @@ class Question(ABC):
 
 
 class TextQuestion(Question):
-    def __init__(self, metadata: TextQuestionMetadata, line_bot_api: LineBotApi) -> None:
-        super().__init__(metadata, line_bot_api)
+    def __init__(self, metadata: TextQuestionMetadata) -> None:
+        super().__init__(metadata)
         self._metadata = metadata
 
 
 class ButtonQuestion(Question):
-    def __init__(self, metadata: ButtonQuestionMetadata, line_bot_api: LineBotApi) -> None:
-        super().__init__(metadata, line_bot_api)
+    def __init__(self, metadata: ButtonQuestionMetadata) -> None:
+        super().__init__(metadata)
         self._metadata = metadata
 
     @property
