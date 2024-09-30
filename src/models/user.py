@@ -40,7 +40,7 @@ class User(object):
     
     def reset(self) -> None:
         self._question_set = initial_question_set_factory.generate()
-        self._index = -1
+        self._index = 0
         self._last_answer_time = time.time()
         self._is_end = False
         self._is_ready = False
@@ -62,11 +62,11 @@ class User(object):
                 self._is_end = True
             elif self.current_question.ans == "1":
                 self._question_set = choose_question_set_factory.generate()
-                self._index = -1
+                self._index = 0
         elif self._question_set.key == QuestionSet.KET_CHOOSE:
             if self.current_question.ans == "1":
                 self._question_set = diabetes_question_set_factory.generate()
-                self._index = -1
+                self._index = 0
             else:
                 self._is_end = True
         elif self._question_set.key == QuestionSet.KEY_DIABETES:

@@ -56,25 +56,25 @@ def handle_text_message(event):
     if user.is_timeout:
         user.reset()
 
-    if user.is_ready:
-        if isinstance(user.current_question, ButtonQuestion):
-            # 按鈕問題不應該輸入文字回答
-            line_bot_api.reply_message(reply_token, TextSendMessage(text="請選擇按鈕選項"))
-            return None
-        
-        answer_is_valid = user.current_question.answer(line_bot_api=line_bot_api, reply_token=reply_token, ans=msg)
-        if not answer_is_valid:
-            return None
-        
-    if not user.arrived_at_last_question:
-        user.goto_next_question()
-        user.current_question.ask(line_bot_api=line_bot_api, reply_token=reply_token)
-        user.make_ready()
-    else:
-        user.finalize(line_bot_api=line_bot_api, reply_token=reply_token)
-
     if user.is_end:
         user.reset()
+
+    if not user.current_question.is_asked:
+        user.current_question.ask(line_bot_api=line_bot_api, reply_token=reply_token)
+
+    if isinstance(user.current_question, ButtonQuestion):
+        # 按鈕問題不應該輸入文字回答
+        line_bot_api.reply_message(reply_token, TextSendMessage(text="請選擇按鈕選項"))
+        return None
+    
+    ans_is_valid = user.current_question.answer(line_bot_api=line_bot_api, reply_token=reply_token, ans=msg)
+    if not ans_is_valid:
+        return None
+    
+    if not user.arrived_at_last_question:
+        user.goto_next_question()
+    else:
+        user.finalize()
    
 # 按鈕按下之後的回應
 @handler.add(PostbackEvent)
@@ -92,28 +92,29 @@ def handle_postback(event):
         return None
         
     user = user_board.get_user(user_id)
+
     if user.is_timeout:
         user.reset()
-    
-    if user.is_ready:
-        if isinstance(user.current_question, TextQuestion):
-            # 文字問題不應該按按鈕回答
-            line_bot_api.reply_message(reply_token, TextSendMessage(text="請輸入文字"))
-            return None
-        
-        answer_is_valid = user.current_question.answer(line_bot_api=line_bot_api, reply_token=reply_token, ans=postback_data)
-        if not answer_is_valid:
-            return None
-        
-    if not user.arrived_at_last_question:
-        user.goto_next_question()
-        user.current_question.ask(line_bot_api=line_bot_api, reply_token=reply_token)
-        user.make_ready()
-    else:
-        user.finalize(line_bot_api=line_bot_api, reply_token=reply_token)
 
     if user.is_end:
         user.reset()
+
+    if not user.current_question.is_asked:
+        user.current_question.ask(line_bot_api=line_bot_api, reply_token=reply_token)
+
+    if isinstance(user.current_question, TextQuestion):
+        # 文字問題不應該按按鈕回答
+        line_bot_api.reply_message(reply_token, TextSendMessage(text="請輸入文字"))
+        return None
+    
+    ans_is_valid = user.current_question.answer(line_bot_api=line_bot_api, reply_token=reply_token, ans=postback_data)
+    if not ans_is_valid:
+        return None
+    
+    if not user.arrived_at_last_question:
+        user.goto_next_question()
+    else:
+        user.finalize()
     
 
 if __name__ == "__main__":

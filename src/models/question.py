@@ -18,6 +18,11 @@ class Question(ABC):
         self._check_float = check_float
         self._check_int = check_int
         self._check_positive = check_positive
+        self._is_asked = False
+
+    @property
+    def is_asked(self) -> bool:
+        return self._is_asked
 
     @property
     def key(self) -> str:
@@ -89,6 +94,7 @@ class TextQuestion(Question):
             reply_token=reply_token, 
             messages=[TextSendMessage(text=self._title)]
         )
+        self._is_asked = True
 
 
 class ButtonQuestionOption(object):
@@ -122,3 +128,4 @@ class ButtonQuestion(Question):
             )
         )
         line_bot_api.reply_message(reply_token=reply_token, messages=[template_message])
+        self._is_asked = True

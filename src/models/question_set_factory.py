@@ -64,7 +64,7 @@ class DiabetesQuestionSetFactory(QuestionSetFactory):
         gender_options = [ButtonQuestionOption(label="男", data="0"), ButtonQuestionOption(label="女", data="1")]
         gender_question = ButtonQuestion(title="性別", key="gender", introduction="請選擇性別", allowed_ans_list=[0, 1], check_int=True, options=gender_options)
         age_question = TextQuestion(title="年齡", key="age", check_int=True, check_positive=True)
-        bmi_question = TextQuestion(title="BMI", key="bmi", check_float=True, check_positive=True), 
+        bmi_question = TextQuestion(title="BMI", key="bmi", check_float=True, check_positive=True)
         hba1c_question = TextQuestion(title="hba1c(%)", key="hba1c", check_float=True, check_positive=True)
         blood_sugar_question = TextQuestion(title="血糖值(mg/dL)", key="blood_sugar", check_int=True, check_positive=True)
         questions=[gender_question, age_question, bmi_question, hba1c_question, blood_sugar_question]
