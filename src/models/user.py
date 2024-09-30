@@ -4,6 +4,7 @@ from vars import base_api_url
 
 import time
 import requests
+import logging
 
 from linebot import LineBotApi
 from linebot.models import TextSendMessage
@@ -75,12 +76,16 @@ class User(object):
             for question in self._question_set.questions:
                 request_data[question.key] = question.ans
 
+            logging.info(request_data)
+
             api_url = f"{base_api_url}/predict/diabetes"
             try:
                 response = requests.post(api_url, json=request_data, headers={'Content-type': 'application/json'})
                 response.raise_for_status()
 
                 response_data = response.json()
+
+                logging.info(response_data)
 
                 have_diabetes = response_data.get('have_diabetes', None)
                 diabetes_percentage = response_data.get('diabetes_percentage', None)
