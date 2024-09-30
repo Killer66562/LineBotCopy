@@ -77,7 +77,7 @@ class User(object):
                 request_data[question.key] = question.ans
 
             answers = [question.ans for question in self._question_set.questions]
-            err_msg = ", ".join(answers)
+            err_msg = ", ".join(map(str, answers))
 
             raise ValueError(err_msg)
 
