@@ -17,7 +17,7 @@ diabetes_question_set_factory = DiabetesQuestionSetFactory()
 class User(object):
     def __init__(self, timeout: float) -> None:
         self._question_set = initial_question_set_factory.generate()
-        self._index = -1
+        self._index = 0
         self._timeout = timeout
         self._last_answer_time = time.time()
         self._is_end = False
