@@ -68,7 +68,6 @@ def handle_text_message(event):
         
     if not user.arrived_at_last_question:
         user.goto_next_question()
-        print(user.current_question.key)
         user.current_question.ask(line_bot_api=line_bot_api, reply_token=reply_token)
         user.make_ready()
     else:

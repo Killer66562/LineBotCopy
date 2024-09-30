@@ -47,7 +47,7 @@ class User(object):
 
     @property
     def arrived_at_last_question(self) -> bool:
-        return self._index >= len(self._question_set.questions)
+        return self._index >= len(self._question_set.questions) - 1
 
     @property
     def current_question(self) -> Question:
@@ -62,11 +62,11 @@ class User(object):
                 self._is_end = True
             elif self.current_question.ans == "1":
                 self._question_set = choose_question_set_factory.generate()
-                self._index = 0
+                self._index = -1
         elif self._question_set.key == QuestionSet.KET_CHOOSE:
             if self.current_question.ans == "1":
                 self._question_set = diabetes_question_set_factory.generate()
-                self._index = 0
+                self._index = -1
             else:
                 self._is_end = True
         elif self._question_set.key == QuestionSet.KEY_DIABETES:
