@@ -35,8 +35,8 @@ class InitialQuestionSetFactory(QuestionSetFactory):
         super().__init__()
 
     def generate(self) -> QuestionSet:
-        options=[ButtonQuestionOption(label="是", data="1"), ButtonQuestionOption(label="否", data="0")], 
-        questions=[ButtonQuestion(title="是否進行疾病預測", key="", introduction="您好，我是健康智能管家。\n請問是否進行疾病預測呢?", options=options)]
+        options = [ButtonQuestionOption(label="是", data="1"), ButtonQuestionOption(label="否", data="0")]
+        questions = [ButtonQuestion(title="是否進行疾病預測", key="", introduction="您好，我是健康智能管家。\n請問是否進行疾病預測呢?", options=options)]
         return QuestionSet(
             key=QuestionSet.KEY_TEST, 
             questions=questions
@@ -48,8 +48,8 @@ class ChooseQuestionSetFactory(QuestionSetFactory):
         super().__init__()
     
     def generate(self) -> QuestionSet:
-        options=[ButtonQuestionOption(label="糖尿病", data="1"), ButtonQuestionOption(label="高血壓", data="2"), ButtonQuestionOption(label="心臟病", data="3")]
-        questions=[ButtonQuestion(title="要預測的疾病", key="", introduction="請選擇要預測的疾病", options=options)]
+        options = [ButtonQuestionOption(label="糖尿病", data="1"), ButtonQuestionOption(label="高血壓", data="2"), ButtonQuestionOption(label="心臟病", data="3")]
+        questions = [ButtonQuestion(title="要預測的疾病", key="", introduction="請選擇要預測的疾病", options=options)]
         return QuestionSet(
             key=QuestionSet.KET_CHOOSE, 
             questions=questions

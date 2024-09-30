@@ -106,7 +106,7 @@ class ButtonQuestionOption(object):
     
 
 class ButtonQuestion(Question):
-    def __init__(self, title: str, key: str, introduction: str = "", options: list[ButtonQuestionOption] = list(), allowed_ans_list: list[Any] = [], check_float: bool = False, check_int: bool = False, check_positive: bool = False) -> None:
+    def __init__(self, title: str, key: str, introduction: str = "", options: list[ButtonQuestionOption] = [], allowed_ans_list: list[Any] = [], check_float: bool = False, check_int: bool = False, check_positive: bool = False) -> None:
         super().__init__(title, key, allowed_ans_list, check_float, check_int, check_positive)
         self._introduction = introduction
         self._options = options
