@@ -47,7 +47,7 @@ class User(object):
 
     @property
     def arrived_at_last_question(self) -> bool:
-        return self._index >= len(self._question_set.questions) - 1
+        return self._index >= len(self._question_set.questions)
 
     @property
     def current_question(self) -> Question:
