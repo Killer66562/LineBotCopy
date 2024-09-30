@@ -56,12 +56,12 @@ def handle_text_message(event):
     if user.is_timeout:
         user.reset()
 
-    if isinstance(user.current_question, ButtonQuestion):
-        # 按鈕問題不應該輸入文字回答
-        line_bot_api.reply_message(reply_token, TextSendMessage(text="請選擇按鈕選項"))
-        return None
-
     if user.is_ready:
+        if isinstance(user.current_question, ButtonQuestion):
+            # 按鈕問題不應該輸入文字回答
+            line_bot_api.reply_message(reply_token, TextSendMessage(text="請選擇按鈕選項"))
+            return None
+        
         answer_is_valid = user.current_question.answer(line_bot_api=line_bot_api, reply_token=reply_token, ans=msg)
         if not answer_is_valid:
             return None
@@ -94,13 +94,13 @@ def handle_postback(event):
     user = user_board.get_user(user_id)
     if user.is_timeout:
         user.reset()
-
-    if isinstance(user.current_question, TextQuestion):
-        # 文字問題不應該按按鈕回答
-        line_bot_api.reply_message(reply_token, TextSendMessage(text="請輸入文字"))
-        return None
     
     if user.is_ready:
+        if isinstance(user.current_question, TextQuestion):
+            # 文字問題不應該按按鈕回答
+            line_bot_api.reply_message(reply_token, TextSendMessage(text="請輸入文字"))
+            return None
+        
         answer_is_valid = user.current_question.answer(line_bot_api=line_bot_api, reply_token=reply_token, ans=postback_data)
         if not answer_is_valid:
             return None
