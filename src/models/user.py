@@ -16,20 +16,19 @@ diabetes_question_set_factory = DiabetesQuestionSetFactory()
 
 
 class User(object):
+    '''
+    question_set: 當前的問題集
+    index: 問題集問題陣列的索引值
+    timeout: 超時時間，即使用者過幾秒未回答
+    last_answer_time: 上次回答的時間，每次使用answer(ans)方法時，都必須設置此值為當時的時間
+    is_end: 預測是否結束
+    '''
     def __init__(self, timeout: float) -> None:
         self._question_set = initial_question_set_factory.generate()
         self._index = 0
         self._timeout = timeout
         self._last_answer_time = time.time()
         self._is_end = False
-        self._is_ready = False
-
-    @property
-    def is_ready(self) -> bool:
-        return self._is_ready
-    
-    def make_ready(self) -> None:
-        self._is_ready = True
 
     @property
     def is_end(self) -> bool:
@@ -44,7 +43,6 @@ class User(object):
         self._index = 0
         self._last_answer_time = time.time()
         self._is_end = False
-        self._is_ready = False
 
     @property
     def arrived_at_last_question(self) -> bool:
@@ -76,21 +74,12 @@ class User(object):
             for question in self._question_set.questions:
                 request_data[question.key] = question.ans
 
-            answers = [question.ans for question in self._question_set.questions]
-            err_msg = ", ".join(map(str, answers))
-
-            raise ValueError(err_msg)
-
-            logging.info(request_data)
-
             api_url = f"{base_api_url}/predict/diabetes"
             try:
                 response = requests.post(api_url, json=request_data, headers={'Content-type': 'application/json'})
                 response.raise_for_status()
 
                 response_data = response.json()
-
-                logging.info(response_data)
 
                 have_diabetes = response_data.get('have_diabetes', None)
                 diabetes_percentage = response_data.get('diabetes_percentage', None)
