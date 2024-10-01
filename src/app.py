@@ -55,8 +55,14 @@ def handle_text_message(event):
     user = user_board.get_user(user_id)
 
     #使用者回答問題的間隔過長或已結束一次預測時，重設使用者狀態。
-    if user.is_timeout or user.is_end:
+    if user.is_timeout and not user.is_end:
         user.reset()
+        line_bot_api.reply_message(reply_token=reply_token, messages=[TextSendMessage(text="您已超時"), TextSendMessage(text="請重新來過")])
+        return None
+    
+    if user.is_end:
+        user.reset()
+    
 
     '''
     如果使用者當前的問題尚未被問出
@@ -110,7 +116,12 @@ def handle_postback(event: PostbackEvent):
     user = user_board.get_user(user_id)
 
     #使用者回答問題的間隔過長或已結束一次預測時，重設使用者狀態。
-    if user.is_timeout or user.is_end:
+    if user.is_timeout and not user.is_end:
+        user.reset()
+        line_bot_api.reply_message(reply_token=reply_token, messages=[TextSendMessage(text="您已超時"), TextSendMessage(text="請重新來過")])
+        return None
+    
+    if user.is_end:
         user.reset()
 
     '''
