@@ -47,7 +47,7 @@ class InitialQuestionSetFactory(QuestionSetFactory):
     
 
 class ChooseQuestionSetFactory(QuestionSetFactory):
-    __CHOOSE_QUES_ANS_CHECK_STRATEGIES = [InListCheckStrategy(["0", "1"])]
+    __CHOOSE_QUES_ANS_CHECK_STRATEGIES = [InListCheckStrategy(["1", "2", "3"])]
     def __init__(self) -> None:
         super().__init__()
     
