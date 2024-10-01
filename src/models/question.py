@@ -6,18 +6,15 @@ from typing import Any
 from linebot import LineBotApi
 from linebot.models import TextSendMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction
 
-from utils import is_int, is_float
+from .check_strategy import CheckStrategy
 
 
 class Question(ABC):
-    def __init__(self, title: str, key: str, allowed_ans_list: list[Any] = [], check_float: bool = False, check_int: bool = False, check_positive: bool = False) -> None:
+    def __init__(self, title: str, key: str, ans_check_strategies: list[CheckStrategy] = []) -> None:
         self._title = title
         self._key = key
+        self._ans_check_strategies = ans_check_strategies
         self._ans = None
-        self._allowed_ans_list = allowed_ans_list
-        self._check_float = check_float
-        self._check_int = check_int
-        self._check_positive = check_positive
         self._is_asked = False
 
     @property
@@ -40,74 +37,23 @@ class Question(ABC):
         '''
         Return True if the answer if valid else False
         '''
-        if self._check_float:
-            if not is_float(ans):
-                try:
-                    line_bot_api.reply_message(
-                        reply_token=reply_token, 
-                        messages=TextSendMessage(text="請輸入一個數字")
-                    )
-                    return False
-                except:
-                    return False
-            
-            ans = float(ans)
-
-            if self._check_positive and not ans > 0:
-                try:
-                    line_bot_api.reply_message(
-                        reply_token=reply_token, 
-                        messages=TextSendMessage(text="請輸入一個正數")
-                    )
-                    return False
-                except:
-                    return False
-
-        elif self._check_int:
-            if not is_int(ans):
-                try:
-                    line_bot_api.reply_message(
-                        reply_token=reply_token, 
-                        messages=TextSendMessage(text="請輸入一個整數")
-                    )
-                    return False
-                except:
-                    return False
-            
-            ans = int(ans)
-
-            if self._check_positive and not ans > 0:
-                try:
-                    line_bot_api.reply_message(
-                        reply_token=reply_token, 
-                        messages=TextSendMessage(text="請輸入一個正整數")
-                    )
-                    return False
-                except:
-                    return False
-
-        if self._allowed_ans_list and ans not in self._allowed_ans_list:
-            try:
-                line_bot_api.reply_message(
-                    reply_token=reply_token, 
-                    messages=TextSendMessage(text="請輸入一個正整數")
-                )
+        for strategy in self._ans_check_strategies:
+            if not strategy.check(ans):
+                line_bot_api.reply_message(reply_token=reply_token, messages=TextSendMessage(text=strategy.error_message))
                 return False
-            except Exception:
-                return False
-        
+            ans = strategy.transfer(ans)
         self._ans = ans
         return True
 
 
 class TextQuestion(Question):
-    def __init__(self, title: str, key: str, allowed_ans_list: list[Any] = [], check_float: bool = False, check_int: bool = False, check_positive: bool = False) -> None:
-        super().__init__(title, key, allowed_ans_list, check_float, check_int, check_positive)
+    def __init__(self, title: str, key: str, ans_check_strategies: list[CheckStrategy] = []) -> None:
+        super().__init__(title, key, ans_check_strategies)
 
     def ask(self, line_bot_api: LineBotApi, reply_token: str):
         line_bot_api.reply_message(
             reply_token=reply_token, 
-            messages=TextSendMessage(text=self._title)
+            messages=TextSendMessage(text="請輸入"+self._title)
         )
         self._is_asked = True
 
@@ -127,8 +73,8 @@ class ButtonQuestionOption(object):
     
 
 class ButtonQuestion(Question):
-    def __init__(self, title: str, key: str, introduction: str = "", options: list[ButtonQuestionOption] = [], allowed_ans_list: list[Any] = [], check_float: bool = False, check_int: bool = False, check_positive: bool = False) -> None:
-        super().__init__(title, key, allowed_ans_list, check_float, check_int, check_positive)
+    def __init__(self, title: str, key: str, introduction: str = "", options: list[ButtonQuestionOption] = [], ans_check_strategies: list[CheckStrategy] = []) -> None:
+        super().__init__(title, key, ans_check_strategies)
         self._introduction = introduction
         self._options = options
 
