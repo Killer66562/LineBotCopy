@@ -37,12 +37,13 @@ class Question(ABC):
         '''
         Return True if the answer if valid else False
         '''
+        ans_tmp = str(ans)
         for strategy in self._ans_check_strategies:
-            if not strategy.check(ans):
+            if not strategy.check(ans_tmp):
                 line_bot_api.reply_message(reply_token=reply_token, messages=TextSendMessage(text=strategy.error_message))
                 return False
-            ans = strategy.transfer(ans)
-        self._ans = ans
+            ans_tmp = strategy.transfer(ans_tmp)
+        self._ans = ans_tmp
         return True
 
 
