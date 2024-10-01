@@ -82,6 +82,12 @@ def handle_text_message(event):
     else:
         user.finalize(line_bot_api=line_bot_api, reply_token=reply_token)
 
+    '''
+    user.finalize()後
+    user不一定會進入end狀態
+    因為可能會讀入下一個問題集
+    此時必須問出剛讀進來的問題
+    '''
     if not user.is_end:
         user.current_question.ask(line_bot_api=line_bot_api, reply_token=reply_token)
         return None
@@ -132,7 +138,13 @@ def handle_postback(event: PostbackEvent):
     else:
         user.finalize(line_bot_api=line_bot_api, reply_token=reply_token)
 
-    if not user.is_end:
+    '''
+    user.finalize()後
+    user不一定會進入end狀態
+    因為可能會讀入下一個問題集
+    此時必須問出剛讀進來的問題
+    '''
+    if not user.is_end: 
         user.current_question.ask(line_bot_api=line_bot_api, reply_token=reply_token)
         return None
 
