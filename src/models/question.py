@@ -45,7 +45,7 @@ class Question(ABC):
                 try:
                     line_bot_api.reply_message(
                         reply_token=reply_token, 
-                        messages=[TextSendMessage(text="請輸入一個數字")]
+                        messages=TextSendMessage(text="請輸入一個數字")
                     )
                     return False
                 except:
@@ -57,7 +57,7 @@ class Question(ABC):
                 try:
                     line_bot_api.reply_message(
                         reply_token=reply_token, 
-                        messages=[TextSendMessage(text="請輸入一個正數")]
+                        messages=TextSendMessage(text="請輸入一個正數")
                     )
                     return False
                 except:
@@ -68,7 +68,7 @@ class Question(ABC):
                 try:
                     line_bot_api.reply_message(
                         reply_token=reply_token, 
-                        messages=[TextSendMessage(text="請輸入一個整數")]
+                        messages=TextSendMessage(text="請輸入一個整數")
                     )
                     return False
                 except:
@@ -80,7 +80,7 @@ class Question(ABC):
                 try:
                     line_bot_api.reply_message(
                         reply_token=reply_token, 
-                        messages=[TextSendMessage(text="請輸入一個正整數")]
+                        messages=TextSendMessage(text="請輸入一個正整數")
                     )
                     return False
                 except:
@@ -90,7 +90,7 @@ class Question(ABC):
             try:
                 line_bot_api.reply_message(
                     reply_token=reply_token, 
-                    messages=[TextSendMessage(text="請輸入一個正整數")]
+                    messages=TextSendMessage(text="請輸入一個正整數")
                 )
                 return False
             except Exception:
@@ -107,7 +107,7 @@ class TextQuestion(Question):
     def ask(self, line_bot_api: LineBotApi, reply_token: str):
         line_bot_api.reply_message(
             reply_token=reply_token, 
-            messages=[TextSendMessage(text=self._title)]
+            messages=TextSendMessage(text=self._title)
         )
         self._is_asked = True
 
@@ -142,5 +142,5 @@ class ButtonQuestion(Question):
                 actions=actions
             )
         )
-        line_bot_api.reply_message(reply_token=reply_token, messages=[template_message])
+        line_bot_api.reply_message(reply_token=reply_token, messages=template_message)
         self._is_asked = True
