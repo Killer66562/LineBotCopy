@@ -5,6 +5,7 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, PostbackEvent
 
 import os
+import asyncio
 
 from models import UserBoard, TextQuestion, ButtonQuestion
 from vars import access_token, secret
@@ -29,10 +30,11 @@ user_board = UserBoard()
 """
 @app.route("/", methods=['POST'])
 def webhook():
+    event_loop = asyncio.get_event_loop()
     body = request.get_data(as_text=True)
     signature = request.headers['X-Line-Signature']
     try:
-        handler.handle(body, signature)
+        event_loop.run_in_executor(None, handler.handle, body, signature)
     except InvalidSignatureError:
         abort(400)
     return 'OK'
@@ -77,7 +79,7 @@ def handle_text_message(event):
    
 # 按鈕按下之後的回應
 @handler.add(PostbackEvent)
-def handle_postback(event):
+def handle_postback(event: PostbackEvent):
     # 獲取使用者與回傳的按鈕資訊
     postback_data = str(event.postback.data)
     user_id = str(event.source.user_id)
