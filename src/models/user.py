@@ -62,6 +62,7 @@ class User(object):
         if self._question_set.key == QuestionSet.KEY_TEST:
             if self.current_question.ans == "0":
                 self._is_end = True
+                line_bot_api.reply_message(reply_token, self.GOODBYE_MESSAGE)
             elif self.current_question.ans == "1":
                 self._question_set = choose_question_set_factory.generate()
                 self._index = 0
