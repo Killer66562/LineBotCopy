@@ -30,11 +30,10 @@ user_board = UserBoard()
 """
 @app.route("/", methods=['POST'])
 def webhook():
-    event_loop = asyncio.get_event_loop()
     body = request.get_data(as_text=True)
     signature = request.headers['X-Line-Signature']
     try:
-        event_loop.run_in_executor(None, handler.handle, body, signature)
+        handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
     return 'OK'
