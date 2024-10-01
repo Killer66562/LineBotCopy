@@ -16,6 +16,9 @@ diabetes_question_set_factory = DiabetesQuestionSetFactory()
 
 
 class User(object):
+    GOODBYE_MESSAGE = TextSendMessage(text="謝謝光臨!! 有需要都可以在叫我喔")
+    NOT_IMPLEMENTED_MESSAGE = TextSendMessage(text="本功能尚未完成，敬請期待！")
+    SERVER_ERROR_MESSAGE = TextSendMessage(text="伺服端錯誤，請稍後再試。")
     '''
     question_set: 當前的問題集
     index: 問題集問題陣列的索引值
@@ -59,15 +62,18 @@ class User(object):
         if self._question_set.key == QuestionSet.KEY_TEST:
             if self.current_question.ans == "0":
                 self._is_end = True
+                line_bot_api.reply_message(reply_token, self.GOODBYE_MESSAGE)
             elif self.current_question.ans == "1":
                 self._question_set = choose_question_set_factory.generate()
                 self._index = 0
+                self.current_question.ask(line_bot_api=line_bot_api, reply_token=reply_token)
         elif self._question_set.key == QuestionSet.KET_CHOOSE:
             if self.current_question.ans == "1":
                 self._question_set = diabetes_question_set_factory.generate()
                 self._index = 0
+                self.current_question.ask(line_bot_api=line_bot_api, reply_token=reply_token)
             else:
-                self._is_end = True
+                line_bot_api.reply_message(reply_token, self.NOT_IMPLEMENTED_MESSAGE)
         elif self._question_set.key == QuestionSet.KEY_DIABETES:
             request_data = {}
 
@@ -91,10 +97,8 @@ class User(object):
                 line_bot_api.reply_message(reply_token, [
                     TextSendMessage(text=f"{result}"),
                     TextSendMessage(text=f"糖尿病機率:{diabetes_percentage:.2f}%"),
-                    TextSendMessage(text="謝謝光臨!! 有需要都可以在叫我喔")
+                    self.GOODBYE_MESSAGE
                 ])
                 self._is_end = True
             except (Exception, requests.HTTPError):
-                line_bot_api.reply_message(reply_token, [
-                    TextSendMessage(text="伺服端錯誤，請稍後再試。")
-                ])
+                line_bot_api.reply_message(reply_token, self.SERVER_ERROR_MESSAGE)
