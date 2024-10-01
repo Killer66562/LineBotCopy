@@ -81,6 +81,8 @@ def handle_text_message(event):
         user.goto_next_question()
     else:
         user.finalize(line_bot_api=line_bot_api, reply_token=reply_token)
+        if not user.is_end:
+            user.current_question.ask(line_bot_api=line_bot_api, reply_token=reply_token)
    
 # 按鈕按下之後的回應
 @handler.add(PostbackEvent)
@@ -127,6 +129,8 @@ def handle_postback(event: PostbackEvent):
         user.goto_next_question()
     else:
         user.finalize(line_bot_api=line_bot_api, reply_token=reply_token)
+        if not user.is_end:
+            user.current_question.ask(line_bot_api=line_bot_api, reply_token=reply_token)
     
 
 if __name__ == "__main__":
