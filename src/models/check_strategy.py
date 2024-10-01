@@ -81,9 +81,7 @@ class CompareCheckStrategy(CheckStrategy):
         self._value = value
 
     def check(self, value: Any) -> bool:
-        print(type(value))
-        print(value)
-        if not isinstance(value, int) or not isinstance(value, float):
+        if not isinstance(value, int) and not isinstance(value, float):
             return False
         if self._method == CompareMethod.EQ and not value == self._value:
             return False
