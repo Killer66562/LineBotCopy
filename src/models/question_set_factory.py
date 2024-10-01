@@ -72,7 +72,7 @@ class DiabetesQuestionSetFactory(QuestionSetFactory):
 
     def generate(self) -> QuestionSet:
         gender_options = [ButtonQuestionOption(label="男", data="0"), ButtonQuestionOption(label="女", data="1")]
-        gender_question = ButtonQuestion(title="性別", key="gender", introduction="請選擇性別", allowed_ans_list=[0, 1], options=gender_options,
+        gender_question = ButtonQuestion(title="性別", key="gender", introduction="請選擇性別", options=gender_options,
                                          ans_check_strategies=self.__GENDER_QUEST_ANS_CHECK_STRATEGIES)
         age_question = TextQuestion(title="年齡", key="age",
                                     ans_check_strategies=self.__AGE_QUEST_ANS_CHECK_STRATEGIES)
