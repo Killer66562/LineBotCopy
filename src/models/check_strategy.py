@@ -20,8 +20,8 @@ class CheckStrategy(ABC):
     def transfer(self, value) -> Any:
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def error_message(self) -> str:
         pass
 
