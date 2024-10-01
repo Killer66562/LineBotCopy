@@ -94,6 +94,9 @@ class CompareCheckStrategy(CheckStrategy):
         if self._method == CompareMethod.STE and not value <= self._value:
             return False
         return True
+    
+    def transfer(self, value) -> Any:
+        return value
 
     @property
     def error_message(self) -> str:
